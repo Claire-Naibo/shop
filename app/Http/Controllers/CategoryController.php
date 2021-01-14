@@ -3,10 +3,10 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Category;
-use App\Product;
-use App\Products_Attributes;
+use App\Models\Category;
+use App\Models\Product;
 use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Storage;
 use Image;
 
 class CategoryController extends Controller
@@ -34,13 +34,20 @@ class CategoryController extends Controller
 
             $category->url=$data['url'];
             //Upload Image
-            if ($request->hasFile('image')) {
-                  $request->validate([
-                            'image' => 'file|image|max:10000',
-                        ]);
-                    $storeImage = $request->image->store('categories', 'public');
-                    $category->image = $storeImage;
-            }
+            if($request->hasFile('image')){
+                //Get file from the browser
+               $path= $request->file('image');
+                // Resize and encode to required type
+               $img = Image::make($path)->encode();
+                //Provide the file name with extension
+               $filename = time(). '.' .$path->getClientOriginalExtension();
+               //Put file with own name
+               Storage::put($filename, $img);
+               //Move file to your location
+               Storage::move($filename, 'public/images/categories/' . $filename);
+               //now insert into database
+               $category->image = $filename;
+           }
             $category->status = $status;
             $category->activate_categories = $activate_categories;
             //echo "<pre>";print_r($category);die;
@@ -70,20 +77,30 @@ class CategoryController extends Controller
             }else{
                 $activate_categories = 1;
             }
+
+            //check for current photo
+            $currentPhoto = $data['current_image'];
             //Upload Image
-            if ($request->hasFile('image')) {
-                $request->validate([
-                          'image' => 'file|image|max:10000',
-                      ]);
-                  $storeImage = $request->image->store('products', 'public');
-          }else{
+            if ($request->image != null && $request->image != $currentPhoto) {
+                //delete the image from the folder
+                Storage::disk('public')->delete('images/categories/'.$currentPhoto);
+                //Get file from the browser
+                $path= $request->file('image');
+                 // Resize and encode to required type
+                $img = Image::make($path)->encode();
+                 //Provide the file name with extension
+                $filename = time(). '.' .$path->getClientOriginalExtension();
+                //Put file with own name
+                Storage::put($filename, $img);
+                //Move file to your location
+                Storage::move($filename, 'public/images/categories/' . $filename);
+            }else{
               $storeImage = $data['current_image'];
-          }            //echo "<pre>";print_r($filename);die;
+            }
 
+            Category::where(['id'=>$id])->update(['category_name'=>$data['category_name'],'parent_id'=>$data['parent_id'],'description'=>$data['description'],'status'=>$status,'activate_categories'=>$activate_categories, 'image'=>$filename]);
 
-            Category::where(['id'=>$id])->update(['category_name'=>$data['category_name'],'parent_id'=>$data['parent_id'],'description'=>$data['description'],'status'=>$status,'activate_categories'=>$activate_categories, 'image'=>$storeImage]);
-
-            return redirect('admin/categories/view_category')->with('flash_message_success', 'Service has been Updated Successfully!');
+            return redirect('admin/categories/view_category')->with('flash_message_success', 'Category has been Updated Successfully!');
 
         }
 
@@ -94,10 +111,12 @@ class CategoryController extends Controller
     }
 
     public function deleteCategory($id = null){
-        if (!empty($id)) {
-            Category::where(['id'=>$id])->delete();
-            return redirect()->back()->with('flash_message_success','Category deleted Successfully!');
-        }
+        $category = Category::findOrFail($id);
+        //remove the image from the public/images folder
+        Storage::disk('public')->delete('storage/images/categories/'.$category->image);
+        //delete the categ$category
+        $category->delete();
+        return redirect()->back()->with('flash_message_success','Category deleted Successfully!');
    }
 
     public function viewCategories(Request $request){

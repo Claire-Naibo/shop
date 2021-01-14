@@ -7,15 +7,15 @@
     <h1>Categories</h1>
      @if(Session::has('flash_message_error'))
             <div class="alert alert-error alert-block">
-                <button type="button" class="close" data-dismiss="alert">×</button> 
+                <button type="button" class="close" data-dismiss="alert">×</button>
                 <strong>{!! session('flash_message_error') !!}</strong>
-            </div>        
+            </div>
         @endif
         @if(Session::has('flash_message_success'))
             <div class="alert alert-success alert-block">
-                <button type="button" class="close" data-dismiss="alert">×</button> 
+                <button type="button" class="close" data-dismiss="alert">×</button>
                 <strong>{!! session('flash_message_success') !!}</strong>
-            </div>        
+            </div>
         @endif
   </div>
   <div class="container-fluid">
@@ -47,11 +47,11 @@
                   <td>{{$category->url}}</td>
                   <td class="center">
                   @if(!empty($category->image))
-                    <img src="{{ asset('/storage/products/small/'.$category->image) }}" style="width:80px;">
+                    <img src="{{ asset('/storage/images/categories/'.$category->image) }}" style="width:80px;">
                   @endif
                 </td>
                   <td class="center">
-                    <a href="{{url('/admin/edit_category/'.$category->id)}}" class="btn btn-primary btn-mini">Edit</a> 
+                    <a href="{{url('/admin/edit_category/'.$category->id)}}" class="btn btn-primary btn-mini">Edit</a>
                     <a <?php /*id="delCat" href="{{url('/admin/delete_category/'.$category->id)}}" */?> rel ="{{$category->id}}" rel1 = "delete_category" href = "javascript:" class="btn btn-danger btn-mini deleteRecord">Delete</a></td>
                 </tr>
                 @endforeach

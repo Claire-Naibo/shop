@@ -7,15 +7,15 @@
     <h1>Products</h1>
     @if(Session::has('flash_message_error'))
             <div class="alert alert-error alert-block">
-                <button type="button" class="close" data-dismiss="alert">×</button> 
+                <button type="button" class="close" data-dismiss="alert">×</button>
                 <strong>{!! session('flash_message_error') !!}</strong>
-            </div>        
+            </div>
         @endif
         @if(Session::has('flash_message_success'))
             <div class="alert alert-success alert-block">
-                <button type="button" class="close" data-dismiss="alert">×</button> 
+                <button type="button" class="close" data-dismiss="alert">×</button>
                 <strong>{!! session('flash_message_success') !!}</strong>
-            </div>        
+            </div>
         @endif
   </div>
   <div class="container-fluid"><hr>
@@ -32,7 +32,7 @@
                 <label class="control-label">Under Category</label>
                 <div class="controls">
                   <select name="category_id" id="category_id" value="
-                  {{$productDetails->category_name}}" style="width: 220px;">  
+                  {{$productDetails->category_name}}" style="width: 220px;">
                     <?php echo $categories_dropdown; ?>
                   </select>
                 </div>
@@ -55,7 +55,7 @@
                 <label class="control-label">Description</label>
                 <div class="controls">
                   <textarea name="description" id="description"> {{$productDetails->description}}       </textarea>
-                </div>   
+                </div>
               </div>
               <div class="control-group">
                 <label class="control-label">Price</label>
@@ -68,12 +68,12 @@
                 <label class="control-label">Image</label>
                 <div class="controls">
                     <input name="image" id="image" type="file">
-                      <input type="hidden" name="current_image" value="{{ $productDetails->image }}"> 
+                      <input type="hidden" name="current_image" value="{{ $productDetails->image }}">
                   @if(!empty($productDetails->image))
-                  <img style="width::40px; height: 50px;" src="{{ asset('storage/products/small/'.$productDetails->image) }}">| <a href="{{ url('/admin/delete_product_image/'.$productDetails->id) }}">Delete</a>
+                  <img style="width::40px; height: 50px;" src="{{ asset('/storage/images/products/'.$productDetails->image) }}">
                   @endif
                 </div>
-              </div>             
+              </div>
               <div class="form-actions">
                 <input type="submit" value="Edit Product" class="btn btn-success">
               </div>
@@ -85,4 +85,4 @@
   </div>
 </div>
 
-@endsection 
+@endsection

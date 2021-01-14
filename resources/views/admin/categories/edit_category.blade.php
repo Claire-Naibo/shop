@@ -61,12 +61,12 @@
                 <label class="control-label">Image</label>
                 <div class="controls">
                     <input name="image" id="image" type="file">
-                      <input type="hidden" name="current_image" value="{{ $categoryDetails->image }}"> 
+                      <input type="hidden" name="current_image" value="{{ $categoryDetails->image }}">
                   @if(!empty($categoryDetails->image))
-                  <img style="width::40px; height: 50px;" src="{{ asset('/images/backend_images/categories/small/'.$categoryDetails->image) }}">| <a href="{{ url('/admin/delete_product_image/'.$categoryDetails->id) }}">Delete</a>
+                  <img style="width::40px; height: 50px;" src="{{ asset('/storage/images/categories/'.$categoryDetails->image) }}">
                   @endif
                 </div>
-              </div>              
+              </div>
               <div class="form-actions">
                 <input type="submit" value="Edit Category" class="btn btn-success">
               </div>

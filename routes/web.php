@@ -51,14 +51,13 @@ Route::match(['get','post'],'/admin/categories/add_category','CategoryController
 Route::match(['get','post'],'/admin/edit_category/{id}','CategoryController@editCategory');
 Route::get('/admin/categories/view_category','CategoryController@viewCategories');
 Route::match(['get','post'],'/admin/delete_category/{id}','CategoryController@deleteCategory');
+Route::get('/admin/delete_category_image/{id}', 'CategoryController@deleteCategoryImage');
 
 //Products route
 Route::match(['get','post'],'/admin/add_products','ProductsController@addProduct');
 Route::match(['get','post'],'/admin/edit_product/{id}','ProductsController@editProduct');
 Route::get('/admin/products/view_products','ProductsController@viewProducts');
 Route::get('/admin/delete_product/{id}','ProductsController@deleteProduct');
-Route::get('/admin/delete_product_image/{id}', 'ProductsController@deleteProductImage');
-Route::get('/admin/delete_alt_image/{id}', 'ProductsController@deleteAltImage');
 
 
 //Manage Orders Route in Admin

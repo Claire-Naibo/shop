@@ -11,10 +11,10 @@ class Product extends Model
     ];
 
     public function category() {
-        return $this->belongsTo('App\Category');
+        return $this->belongsTo('App\Models\Category');
     }
 
     public function orderProduct() {
-        return $this->belongsTo('App\OrderProduct', 'product_id', 'id');
+        return $this->belongsTo('App\Models\OrderProduct', 'product_id', 'id');
     }
 }

@@ -3,17 +3,14 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Input;
+use App\Models\Cart;
+use App\Models\Category;
+use App\Models\Product;
 use Image;
 use Auth;
 use Session;
-use App\Cart;
-use App\Category;
-use App\Products_Attributes;
-use App\SliderProducts;
-use App\Accompaniment;
-use App\Product;
-use App\Products_Images;
 use DB;
 
 class ProductsController extends Controller {
@@ -38,35 +35,23 @@ class ProductsController extends Controller {
             $product->price =$data['price'];
 
             //Upload Image
-            if($request->hasFile('image')) {
-                //get filename with extension
-                $filenamewithextension = $request->file('image')->getClientOriginalName();
-
-                //get filename without extension
-                $filename = pathinfo($filenamewithextension, PATHINFO_FILENAME);
-
-                //get file extension
-                $extension = $request->file('image')->getClientOriginalExtension();
-
-                //filename to store
-                $filenametostore = $filename.'_'.time().'.'.$extension;
-
-                //Upload File
-                $request->file('image')->storeAs('public/products/medium', $filenametostore);
-                $request->file('image')->storeAs('public/products/small', $filenametostore);
-
-                //Resize image here
-                $medium_image_path = public_path('storage/products/medium/'.$filenametostore);
-                $small_image_path = public_path('storage/products/small/'.$filenametostore);
-                Image::make($medium_image_path)->resize(700,210)->save($medium_image_path);
-                Image::make($small_image_path)->resize(436,354)->save($small_image_path);
-                // Store image name in products table
-                $product->image = $filenametostore;
-
+            if($request->hasFile('image')){
+                //Get file from the browser
+               $path= $request->file('image');
+                // Resize and encode to required type
+               $img = Image::make($path)->encode();
+                //Provide the file name with extension
+               $filename = time(). '.' .$path->getClientOriginalExtension();
+               //Put file with own name
+               Storage::put($filename, $img);
+               //Move file to your location
+               Storage::move($filename, 'public/images/products/' . $filename);
+               //now insert into database
+               $product->image = $filename;
             }
-                //echo "<pre>";print_r($product);die;
-                $product->save();
-                return redirect()->back()->with('flash_message_success','Product Added Successfuly!');
+            //echo "<pre>";print_r($product);die;
+            $product->save();
+            return redirect('/admin/products/view_products')->with('flash_message_success','Product Added Successfuly!');
 
         }
 
@@ -83,7 +68,6 @@ class ProductsController extends Controller {
         }
         // Categories drop down end //
 
-
         return view('admin.products.add_products')->with(compact('categories_dropdown'));
     }
 
@@ -92,38 +76,30 @@ class ProductsController extends Controller {
         if ($request->isMethod('post')) {
             $data = $request->all();
             //echo "<pre>";print_r($data);die;
+            //check for current photo
+            $currentPhoto = $data['current_image'];
             //Upload Image
-            if($request->hasFile('image')) {
-                //get filename with extension
-                $filenamewithextension = $request->file('image')->getClientOriginalName();
-
-                //get filename without extension
-                $filename = pathinfo($filenamewithextension, PATHINFO_FILENAME);
-
-                //get file extension
-                $extension = $request->file('image')->getClientOriginalExtension();
-
-                //filename to store
-                $filenametostore = $filename.'_'.time().'.'.$extension;
-
-                //Upload File
-                $request->file('image')->storeAs('public/products/medium', $filenametostore);
-                $request->file('image')->storeAs('public/products/small', $filenametostore);
-
-                //Resize image here
-                $medium_image_path = public_path('storage/products/medium/'.$filenametostore);
-                $small_image_path = public_path('storage/products/small/'.$filenametostore);
-                Image::make($medium_image_path)->resize(700,210)->save($medium_image_path);
-                Image::make($small_image_path)->resize(436,354)->save($small_image_path);
-
+            if ($request->image != null && $request->image != $currentPhoto) {
+                //delete the image from the folder
+                Storage::disk('public')->delete('images/products/'.$currentPhoto);
+                //Get file from the browser
+                $path= $request->file('image');
+                 // Resize and encode to required type
+                $img = Image::make($path)->encode();
+                 //Provide the file name with extension
+                $filename = time(). '.' .$path->getClientOriginalExtension();
+                //Put file with own name
+                Storage::put($filename, $img);
+                //Move file to your location
+                Storage::move($filename, 'public/images/products/' . $filename);
             }else{
-                $filenametostore = $data['current_image'];
+              $storeImage = $data['current_image'];
             }
 
             if (empty($data['description'])) {
                 $data['description'];
             }
-            Product::where(['id'=>$id])->update(['category_id'=>$data['category_id'],'product_name'=>$data['product_name'],'product_code'=>$data['product_code'],'description'=>$data['description'],'price'=>$data['price'],'image'=>$filenametostore]);
+            Product::where(['id'=>$id])->update(['category_id'=>$data['category_id'],'product_name'=>$data['product_name'],'product_code'=>$data['product_code'],'description'=>$data['description'],'price'=>$data['price'],'image'=>$filename]);
 
            //dd($test);die;
 
@@ -156,67 +132,6 @@ class ProductsController extends Controller {
         return view('/admin/products.edit_product')->with(compact('productDetails','categories_dropdown'));
     }
 
-    public function addAttributes(Request $request, $id=null ) {
-        $productDetails = Product::with('attributes')->where(['id'=>$id])->first();
-        //echo "<pre>"; print_r($productDetails);die;
-        if ($request->isMethod('post')) {
-            $data = $request->all();
-            // echo "<pre>"; print_r($data);die;
-            foreach ($data['accompaniment'] as $key => $val) {
-
-                    $attribute = new Products_Attributes;
-                    $attribute->product_id = $id;
-                    $attribute->category_id = $data['category_id'];
-                    $attribute->accompaniment = $val;
-                    $attribute->size =$data['size'][$key] ;
-                    $attribute->price = $data['price'][$key];
-                    //echo "<pre>";print_r($attribute);die;
-                    $attribute->save();
-
-            }
-
-            return redirect('admin/add_attributes/'.$id)->with('flash_message_success', 'Product Attributes have been updated Successfully!');
-        }
-        return view('admin/products.add_attributes')->with(compact('productDetails'));
-    }
-    public function editAttributes(Request $request, $id=null) {
-        if ($request->isMethod('post')) {
-            $data = $request->all();
-            // echo "<pre>";print_r($data);die;
-            foreach ($data['idAttr'] as $key => $attr) {
-                Products_Attributes::where(['id'=>$data['idAttr'][$key]])->update(['price'=>$data['price'][$key]]);
-            }
-            return redirect()->back()->with('flash_message_success', 'Price updated Successfuly!');
-        }
-    }
-
-    public function deleteAttribute($id = null) {
-        Products_Attributes::where(['id'=>$id])->delete();
-        return redirect()->back()->with('flash_message_success','Attribute has been Deleted Successfully!');
-    }
-
-    public function addAccompaniment(Request $request, $id=null ) {
-        $productDetails = Product::with('accompaniments')->where(['id'=>$id])->first();
-        //echo "<pre>"; print_r($productDetails);die;
-
-        if ($request->isMethod('post')) {
-            $data = $request->all();
-            //echo "<pre>"; print_r($data);die;
-            foreach ($data['accompaniment'] as $key => $val) {
-                if (!empty($val)) {
-                    $accompaniments = new Products_Attributes;
-                    $accompaniments->product_id = $id;
-                    $accompaniments->accompaniment = $data['accompaniment'][$key];
-                    //echo "<pre>";print_r($accompaniments);die;
-                    $accompaniments->save();
-                }
-            }
-
-            return redirect('admin/add_accompaniments/'.$id)->with('flash_message_success', 'Accompaniment have been updated Successfully!');
-        }
-        return view('admin/products.add_accompaniment')->with(compact('productDetails'));
-    }
-
     public function viewProducts(Request $request) {
 
         $products = Product::with('category')->get();
@@ -228,13 +143,13 @@ class ProductsController extends Controller {
         // echo "<pre>"; print_r($products); die;
         return view('admin.products.view_products')->with(compact('products'));
     }
-    public function deleteAccompaniment($id = null) {
-        Accompaniment::where(['id'=>$id])->delete();
-        return redirect()->back()->with('flash_message_success','Accompaniment has been Deleted Successfully!');
-    }
 
-    public function deleteProduct($id = null) {
-        Product::where(['id'=>$id])->delete();
+    public function deleteProduct($id) {
+        $product = Product::findOrFail($id);
+        //remove the image from the public/images folder
+        Storage::disk('public')->delete('storage/images/products/'.$product->image);
+        //delete the prod$product
+        $product->delete();
         return redirect()->back()->with('flash_message_success','Product has been Deleted Successfully!');
     }
 
@@ -242,37 +157,6 @@ class ProductsController extends Controller {
         SliderProducts::where(['id'=>$id])->delete();
         return redirect()->back()->with('flash_message_success','Product has been Deleted Successfully!');
     }
-
-    public function deleteProductImage($id) {
-
-        // Get Product Image
-        $productImage = Product::where('id',$id)->first();
-
-        // Get Product Image Paths#
-        $orginal_image =  'storage/products/';
-        $medium_image_path = 'storage/products/medium/';
-        $small_image_path = 'storage/products/small/';
-
-        // Delete Large Image if not exists in Folder
-        if(file_exists($orginal_image.$productImage->image)){
-            unlink($orginal_image.$productImage->image);
-        }
-        // Delete Medium Image if not exists in Folder
-        if(file_exists($medium_image_path.$productImage->image)){
-            @unlink($medium_image_path.$productImage->image);
-        }
-
-        // Delete Small Image if not exists in Folder
-        if(file_exists($small_image_path.$productImage->image)){
-            @unlink($small_image_path.$productImage->image);
-        }
-
-        // Delete Image from Products table
-        Product::where(['id'=>$id])->update(['image'=>'']);
-
-        return redirect()->back()->with('flash_message_success', 'Product image has been deleted successfully');
-    }
-
 
     public function products($id = null,$category_id='category_id') {
 
@@ -317,20 +201,6 @@ class ProductsController extends Controller {
         }
             //dd($allSpecificDetails);
         return view('frontpages/menu-single')->with(compact('subCategories','allDetails'));
-    }
-
-    public function getProductPrice(Request $request){
-        $data = $request->all();
-        //echo "<pre>";print_r($data);die;
-        // $proArr = explode("-",$data['idSize']);
-        //echo "<pre>";print_r($proArr);die;
-        $proAttr = Products_Attributes::where(['id' => $data['idSize']])->get();
-
-        return $proAttr[0] ? $proAttr[0] : null;
-        // foreach ($proAttr as $pesa) {
-        //    return $pesa->price;
-        // }
-        //dd($proAttr);
     }
 
     public function addToCart(Request $request, $id = 'id') {
