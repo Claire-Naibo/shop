@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Auth;
 use Session;
-use App\User;
+use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 
 class AdminController extends Controller
@@ -60,6 +60,34 @@ class AdminController extends Controller
             }
         }
     }
+    public function viewUsers(Request $request) {
+        $users = User::where(['admin'=>'0'])->latest()->get();
+        //dd($users);
+        $users = json_decode(json_encode($users));
+        return view('admin.users.index')->with(compact('users'));
+    }
+    public function editUser(Request $request, $id=null){
+
+        if ($request->isMethod('post')) {
+            $data = $request->all();
+            //echo "<pre>";print_r($data);die;
+
+            User::where(['id'=>$id])->update(['name'=>$data['name'],'email'=>$data['email']]);
+
+            return redirect('/admin/users/view_users')->with('flash_message_success', 'User Details Updated Successfully!');
+
+        }
+
+        $userDetails = User::where(['id'=>$id])->first();
+
+        return view('/admin/users.edit')->with(compact('userDetails'));
+    }
+    public function deleteUser($id = null){
+        if (!empty($id)) {
+            User::where(['id'=>$id])->delete();
+            return redirect()->back()->with('flash_message_success','User deleted Successfully!');
+        }
+   }
 	public function logout() {
 		Session::flush();
 		return redirect('/admin')->with('flash_message_success','Logged out Succesfully');

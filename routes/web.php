@@ -40,6 +40,12 @@ Route::get('/admin/settings','AdminController@settings');
 Route::get('/admin/check-pwd','AdminController@chkPassword');
 Route::match(['get','post'],'/admin/update-pwd','AdminController@updatePassword');
 
+//view users from admin
+Route::match(['get','post'],'/admin/edit_user/{id}','AdminController@editUser');
+Route::get('/admin/users/view_users','AdminController@viewUsers');
+Route::match(['get','post'],'/admin/delete_user/{id}','AdminController@deleteUser');
+
+
 //Categories Routes (Admin)
 Route::match(['get','post'],'/admin/categories/add_category','CategoryController@addCategory');
 Route::match(['get','post'],'/admin/edit_category/{id}','CategoryController@editCategory');
