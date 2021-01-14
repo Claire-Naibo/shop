@@ -18,6 +18,7 @@ class PagesController extends Controller
 {
     public function Index($id =null) {
 
+        return view('welcome');
 
     }
 

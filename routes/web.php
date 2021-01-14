@@ -26,7 +26,7 @@ Auth::routes(['verify' => true]);
 Route::get('/user/activation/{token}', 'Auth\RegisterController@userActivation');
 
 // Route::get('/home', 'HomeController@index')->name('home');
-Route::get('/home', 'PagesController@Index')->middleware('verified');
+Route::get('/home', 'HomeController@Index')->middleware('verified');
 
 
 Route::get('/','PagesController@Index');
