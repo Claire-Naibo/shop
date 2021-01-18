@@ -22,7 +22,7 @@ class CreateOrdersTable extends Migration
             $table->string('email');
             $table->float('total')->unsigned();
             $table->tinyInteger('delivered')->unsigned()->nullable();
-            $table->tinyInteger('status')->nullable();             
+            $table->tinyInteger('status')->default(0);             
             $table->timestamps();
         });
     }

@@ -37,10 +37,6 @@
                   <th>Food Ordered</th>
                   <th>Quantity</th>
                   <th>Item Price</th>
-                  <th>Delivery Cost</th>
-                  <th>Paid Amount</th>            
-                  <th>Method</th>
-                  <th>Status</th>
                   <th>Total</th>
                   <th>Date Ordered</th>
                 </tr>
@@ -54,8 +50,7 @@
                   <td>{{$order->email}}</td>
                   <td>
                     @foreach($order->orderItems as $item)
-                      {{ '- ' . $item->product->product_name}} {{ $item->productAttribute ? $item->productAttribute->size ? ' (' . $item->productAttribute->size . ')' : '' : '' }}
-                      {{ $item->productAttribute ? $item->productAttribute->accompaniment ? ' + ' . $item->productAttribute->accompaniment : '' : '' }} <br/>
+                      {{ '- ' . $item->product->product_name}}  <br/>
                     @endforeach
                   </td>
                   <td>
@@ -68,10 +63,6 @@
                       {{ 'Ksh. ' . $item->price }} <br/>
                     @endforeach
                   </td>
-                  <td>Ksh. {{$order->deliveryDetails && count($order->deliveryDetails) > 0 ? $order->deliveryDetails[0] ? $order->deliveryDetails[0]['delivery_charge'] : 'N/A' : 'N/A'}}</td>
-                  <td>Ksh. {{$order->paymentDetails && count($order->paymentDetails) > 0  ? $order->paymentDetails[0] ? $order->paymentDetails[0]['payment_details_amount'] : 'N/A' : 'N/A'}}</td>
-                  <td>{{$order->paymentDetails && count($order->paymentDetails) > 0  ?  $order->paymentDetails[0] ? strtoupper( $order->paymentDetails[0]['payment_details_type']) : 'N/A' : 'N/A'}}</td>
-                  <td>{{$order->paymentDetails && count($order->paymentDetails) > 0  ? $order->paymentDetails[0] ? $order->paymentDetails[0]['payment_details_status'] : 'N/A' : 'N/A'}}</td>
                   <td>Ksh. {{$order->total}}</td>
                   <td>{{date('jS l, F Y h:i A',strtotime($order->created_at ))}}</td>
                 

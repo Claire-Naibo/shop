@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
-use App\Order;
+use App\Models\Order;
 use Carbon\Carbon;
 use App\Mail\OrderShipped;
 use Illuminate\Support\Facades\Mail;
@@ -12,10 +12,10 @@ class OrderController extends Controller
      public function Orders($type='')
     {
         if($type =='pending'){
-            $orders=Order::with('orders')->where('dispatch_status','0')->get();
+            $orders=Order::with('orders')->where('status','0')->get();
             return view('admin.orders.pending', compact('orders'));
         }elseif ($type == 'delivered'){
-            $orders=Order::with('orders')->where('dispatch_status','1')->get();
+            $orders=Order::with('orders')->where('status','1')->get();
             return view('admin.orders.delivered',compact('orders'));
         }else{
             $orders=Order::with('orders')->get();        

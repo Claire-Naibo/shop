@@ -19,7 +19,7 @@ Auth::routes(['verify' => true]);
 
 //Homepage Routes
 Route::get('/','PagesController@Index');
-Route::get('/home', 'HomeController@Index')->middleware('verified');
+Route::get('/home', 'HomeController@Index');
 
 //Get Menu Categories & Products
 Route::match(['get','post'], '/menu-list-navigation','ProductsController@products');

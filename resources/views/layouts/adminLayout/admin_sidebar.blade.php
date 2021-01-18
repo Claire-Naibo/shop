@@ -15,13 +15,13 @@
         <li><a href="{{url('/admin/products/view_products')}}">View Products</a></li>
       </ul>
     </li>
-    <!-- <li class="submenu"> <a href="#"><i class="icon icon-th-list"></i> <span> Manage Orders</span> <span class="   label label-important"></span></a>
+    <li class="submenu"> <a href="#"><i class="icon icon-th-list"></i> <span> Manage Orders</span> <span class="   label label-important"></span></a>
       <ul>
         <li><a href="{{url('orders/pending')}}">Pending Orders</a></li>
         <li><a href="{{url('orders/delivered')}}">Delivered Orders</a></li>
         <li><a href="{{url('orders')}}">All Orders</a></li>
       </ul>
-    </li> -->
+    </li>
     <li class="submenu"> <a href="#"><i class="icon icon-th-list"></i> <span>Manage Users</span> <span class="label label-important"></span></a>
       <ul>
         <li><a href="{{url('/admin/users/view_users')}}">View Users</a></li>
