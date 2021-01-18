@@ -68,7 +68,7 @@ class UserController extends Controller
 
             return redirect()->back()->with('flash_message_success','Your Account Details have been Updated Succesfully');
        }
-        return view('users.account')->with(compact('userDetails','orderDetails'));
+        return view('users.account')->with(compact('userDetails'));
     }
 
     public function getOrders(Request $request) {
