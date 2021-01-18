@@ -13,24 +13,61 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-// Route::get('/', function () {
-//     return view('welcome');
-// });
-
-// Auth::routes();
-
-// Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 Auth::routes(['verify' => true]);
 
-//user email activation
-Route::get('/user/activation/{token}', 'Auth\RegisterController@userActivation');
+/**Client Side Routes */
 
-// Route::get('/home', 'HomeController@index')->name('home');
+//Homepage Routes
+Route::get('/','PagesController@Index');
 Route::get('/home', 'HomeController@Index')->middleware('verified');
 
+//Get Menu Categories & Products
+Route::match(['get','post'], '/menu-list-navigation','ProductsController@products');
 
-Route::get('/','PagesController@Index');
-Route::match(['get','post'], 'page-contact', 'PagesController@Contact');
+//add to cart route
+Route::match(['get','post'],'add-to-cart/{id}', 'ProductsController@addToCart');
+Route::match(['get','post'],'/cart/update-cart/{id}', 'ProductsController@updateCart');
+Route::match(['get','post'],'/cart/delete_cart/{id}','ProductsController@deleteCart');
+
+//Checkout Page Route
+Route::match(['get','post'], '/checkout','CheckoutController@guestCheckout');
+Route::get('/guest-checkout','CheckoutController@guestCheckout');
+Route::match(['get','post'], '/user-checkout','CheckoutController@Checkout')->middleware('auth');
+
+//billing info route
+Route::match(['get','post'],'/billing', 'CheckoutController@storeOrder');
+Route::match(['get', 'post'], '/payments', 'PaymentsController@viewPayments');
+Route::match(['get', 'post'], '/payments/process', 'PaymentsController@processPayments');
+Route::get('/mailable', function() {
+	$order = App\Order::find(3);
+
+	return new App\Mail\OrderPlaced($order);
+});
+
+//Register & Login Routes
+Route::match(['get','post'], '/user-register', 'UserController@Register');
+Route::match(['get','post'], '/user-login','UserController@Login');
+
+//User Account Route with middleware
+Route::group(['middleware'=>['Frontlogin','verified']], function() {
+	
+	Route::match(['get','post'], '/account', 'UserController@Account');
+	Route::match(['get','post'], '/loginpage', 'UserController@loginPage');
+
+	//order List
+	Route::match(['get','post'],'/order-details','UserController@getOrders');
+	//check current password	
+	Route::post('/check-user-pwd','UserController@CheckUserPwd');
+	//Update current password in db
+	Route::post('/update-user-pwd', 'UserController@updateUserPassword');
+
+});
+
+//User's logout
+Route::get('/user-logout','UserController@logout');
+
+/** Client Routes End */
+
 //admin login route
 Route::match(['get', 'post'],'/admin', 'AdminController@login');
 
@@ -71,6 +108,10 @@ Route::get('/admin/orders/view_orders','PagesController@viewOrders');
 Route::get('/admin/orders/pending_orders','PagesController@pendingOrders');
 
 Route::get('/logout', 'AdminController@logout');
+
+/** Admin Routes End*/
+
+
 
 
 

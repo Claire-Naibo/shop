@@ -95,7 +95,7 @@ class CategoryController extends Controller
                 //Move file to your location
                 Storage::move($filename, 'public/images/categories/' . $filename);
             }else{
-              $storeImage = $data['current_image'];
+              $filename = $data['current_image'];
             }
 
             Category::where(['id'=>$id])->update(['category_name'=>$data['category_name'],'parent_id'=>$data['parent_id'],'description'=>$data['description'],'status'=>$status,'activate_categories'=>$activate_categories, 'image'=>$filename]);

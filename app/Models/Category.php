@@ -11,21 +11,8 @@ class Category extends Model
     ];
     protected $table = 'categories';
 
-    public function subcategories(){
-
-    	return $this->hasMany('App\Product','parent_id','id');
-
-    }
-
-    public function categories(){
-
-        return $this->hasMany('App\Category','parent_id');
-    }
     public function products(){
 
-        return $this->hasMany('App\Product', 'category_id');
-    }
-    public function attributes(){
-        return $this->hasMany('App\Products_Attributes','category_id');
+        return $this->hasMany('App\Models\Product', 'category_id');
     }
 }

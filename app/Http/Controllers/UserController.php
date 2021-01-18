@@ -3,14 +3,13 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\User;
-use Auth;
-use Session;
-use App\Order;
-use App\DeliveryDetails;
+use App\Models\DeliveryDetails;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Middleware\Frontlogin;
-
+use App\Models\User;
+use App\Models\Order;
+use Auth;
+use Session;
 class UserController extends Controller
 {
 

@@ -22,21 +22,17 @@ class OrderProduct extends Model
 
     public function product()
     {
-        return $this->hasOne('App\Product', 'id', 'product_id');
+        return $this->hasOne('App\Models\Product', 'id', 'product_id');
     }
 
     public function order()
     {
-        return $this->belongsTo('App\Order');
+        return $this->belongsTo('App\Models\Order');
     }
 
     public function orders()
     {
-        return $this->belongsTo('App\User');
+        return $this->belongsTo('App\Models\User');
     }
 
-    public function productAttribute()
-    {
-        return $this->hasOne('App\Products_Attributes', 'id', 'accompaniment_id');
-    }
 }

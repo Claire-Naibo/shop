@@ -40,6 +40,9 @@ class ProductsController extends Controller {
                $path= $request->file('image');
                 // Resize and encode to required type
                $img = Image::make($path)->encode();
+                $img->resize(300, 200, function ($constraint) {
+                    $constraint->aspectRatio();
+                })->save($filename.'/'.$request->hasFile('image'));
                 //Provide the file name with extension
                $filename = time(). '.' .$path->getClientOriginalExtension();
                //Put file with own name
@@ -93,7 +96,7 @@ class ProductsController extends Controller {
                 //Move file to your location
                 Storage::move($filename, 'public/images/products/' . $filename);
             }else{
-              $storeImage = $data['current_image'];
+              $filename = $data['current_image'];
             }
 
             if (empty($data['description'])) {
@@ -158,29 +161,12 @@ class ProductsController extends Controller {
         return redirect()->back()->with('flash_message_success','Product has been Deleted Successfully!');
     }
 
-    public function products($id = null,$category_id='category_id') {
+    public function products($id = null) {
 
         //get main categories
-        $mainCategories = Category::where(['parent_id'=>0])->get();
-
-        //get sub categories
-        $subCategories = Category::where(['parent_id' => $id])->get();
-        //dd($subCategories);
-
-        $allDetails = [];
-
-        foreach ($subCategories as $subCategory) {
-            $getCatNames = Category::with('products.attributes')->where(['id' =>$subCategory->id])->get();
-            $getCatNames = json_decode(json_encode($getCatNames));
-            //dd($getCatNames);
-            array_push($allDetails, $getCatNames);
-
-        }
-        $checkProduct = Products_Attributes::get();
-        //dd($checkProduct);
-            // dd($allDetails);
-
-        return view('frontpages/menu-list-collapse')->with(compact('mainCategories','allDetails','checkProduct'));
+        $mainCategories = Category::with('products')->where(['parent_id'=>0])->orderBy('id','ASC')->get();
+        //dd($mainCategories);
+        return view('menu-list-navigation')->with(compact('mainCategories'));
     }
 
     public function singleProduct($id = null, $category_id='category_id'){
@@ -193,7 +179,7 @@ class ProductsController extends Controller {
 
         foreach ($subCategories as $subCategory) {
 
-            $getCatNames = Category::with('products.attributes')->where(['id' =>$subCategory->id])->get();
+            $getCatNames = Category::with('products')->where(['id' =>$subCategory->id])->get();
             $getCatNames = json_decode(json_encode($getCatNames));
             //dd($getCatNames);
             array_push($allDetails, $getCatNames);
@@ -216,16 +202,6 @@ class ProductsController extends Controller {
 
         // dd($cart);
 
-        // Use the size Id to get size information, if any
-        if($data->size) {
-            $sizeDetails = Products_Attributes::where(['id' => $data->size])->get();
-        } else if($data->accompaniment) {
-            $sizeDetails = Products_Attributes::where(['id' => $data->accompaniment])->get();
-        } else {
-            $sizeDetails = null;
-        }
-        // dd($sizeDetails);
-
         // Check if an item is already in the cart or not
         // Loop to check
         $cartCount = count($cart);
@@ -239,54 +215,26 @@ class ProductsController extends Controller {
                 $cartKeyMatch = $key;
             }
         }
-
-        if($cartKeyMatch) {
-            // Check if accompaniments match
-            if($cart[$cartKeyMatch]['accompaniment_id'] === $data->size) {
-                // Edit particular entry by adding qty
-                $cart[$cartKeyMatch]['quantity']++;
-
-            } else {
-                // Treat as a different product, proceed as normal
-                $cart = $this->addCartItem($cart, $data, $sizeDetails);
-            }
-
-        } else {
-            // Proceed as normal
-            $cart = $this->addCartItem($cart, $data, $sizeDetails);
-        }
+            
+        // Proceed as normal
+        $cart = $this->addCartItem($cart, $data);
+        
 
         session()->put('cart', $cart);
 
         return redirect()->back()->with('success', 'Product added to cart successfully!');
     }
 
-    public function addCartItem($cart = [], $newItemData = null, $sizeDetails = null) {
+    public function addCartItem($cart = [], $newItemData = null) {
         // Add item
         // Calculate price
         $price = $newItemData->price ?? 0;
-
-        if($sizeDetails && count($sizeDetails) > 0) {
-            // 1. Check if it is a size
-            if($sizeDetails[0]->size) {
-                $price = $sizeDetails[0]->price;
-            } else {
-                // 2. Check whether it is a priced accompaniment
-                if($sizeDetails[0]->price) {
-                    $price = $price + $sizeDetails[0]->price;
-                }
-            }
-        }
 
         $cartItem = [
             "id" => $newItemData->id,
             "product_name" => $newItemData->product_name,
             "quantity" => 1,
-            "price" => $price,
-            "accompaniment_id" => $sizeDetails && $sizeDetails[0]->id ? $sizeDetails[0]->id : null,
-            "accompaniment_price" => $sizeDetails && $sizeDetails[0]->price ? $sizeDetails[0]->price : null,
-            "accompaniment_size" => $sizeDetails && $sizeDetails[0]->size ? $sizeDetails[0]->size : null,
-            "accompaniment" => $sizeDetails && $sizeDetails[0]->accompaniment ? $sizeDetails[0]->accompaniment : null
+            "price" => $price
         ];
 
         // Use time as the cart Id since a cart can have 2 products with different sizes. They have to be treated as different products.

@@ -16,12 +16,12 @@ class Order extends Model
 
     public function orders()
     {
-        return $this->hasMany('App\OrderProduct','order_id');
+        return $this->hasMany('App\Models\OrderProduct','order_id');
     }
 
     public function orderItems()
     {
-        return $this->hasMany('App\OrderProduct');
+        return $this->hasMany('App\Models\OrderProduct');
     }
     //this is used in the admin end on orders
     public function Items(){
@@ -30,22 +30,17 @@ class Order extends Model
 
     public function products()
     {
-        return $this->belongsToMany('App\Product');
+        return $this->belongsToMany('App\Models\Product');
     }
 
     public function orderUsers()
     {
-        return $this->belongsTo('App\User');
+        return $this->belongsTo('App\Models\User');
     }
 
     public function deliveryDetails()
     {
-        return $this->hasMany('App\DeliveryDetails', 'order_id', 'id');
-    }
-
-    public function paymentDetails()
-    {
-        return $this->hasMany('App\PaymentDetails', 'order_id', 'id');
+        return $this->hasMany('App\Models\DeliveryDetails', 'order_id', 'id');
     }
 
 }
