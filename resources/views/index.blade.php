@@ -80,7 +80,6 @@
                             <div class="feature-icon icon icon-primary"><i class="ti ti-shopping-cart"></i></div>
                             <div class="feature-content">
                                 <h4 class="mb-2"><a href="menu-list-collapse.html">Pick a dish</a></h4>
-                                <p class="text-muted mb-0">Vivamus volutpat leo dictum risus ullamcorper condimentum.</p>
                             </div>
                         </div>
                     </div>
@@ -90,7 +89,6 @@
                             <div class="feature-icon icon icon-primary"><i class="ti ti-wallet"></i></div>
                             <div class="feature-content">
                                 <h4 class="mb-2">Make a payment</h4>
-                                <p class="text-muted mb-0">Vivamus volutpat leo dictum risus ullamcorper condimentum.</p>
                             </div>
                         </div>
                     </div>
@@ -100,7 +98,6 @@
                             <div class="feature-icon icon icon-primary"><i class="ti ti-package"></i></div>
                             <div class="feature-content">
                                 <h4 class="mb-2">Recieve your food!</h4>
-                                <p class="text-muted mb-3">Vivamus volutpat leo dictum risus ullamcorper condimentum.</p>
                             </div>
                         </div>
                     </div>
